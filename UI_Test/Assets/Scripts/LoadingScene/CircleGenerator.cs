@@ -25,60 +25,65 @@ public class CircleGenerator : MonoBehaviour
 
     IEnumerator InstantiateCircle()
     {
-        if (count == maxCount) count = maxCount;
-        else count++;
-
-        tempCircle = Instantiate(circleObjectPrefab, Vector3.zero, Quaternion.identity, transform);
-        tempCircle.SetActive(false);
-        deactiveCirclePool.Enqueue(tempCircle);
-
-        if (count == maxCount)
+        while (true)
         {
-            yield return new WaitForSeconds(1f);
-            StartCoroutine(nameof(GenerateCircle));
-            yield break;
-        }
+            if (count == maxCount) count = maxCount;
+            else count++;
 
-        yield return new WaitForSeconds(0.2f);
-        StartCoroutine(nameof(InstantiateCircle));
-        yield break;
+            tempCircle = Instantiate(circleObjectPrefab, Vector3.zero, Quaternion.identity, transform);
+            tempCircle.SetActive(false);
+            deactiveCirclePool.Enqueue(tempCircle);
+
+            if (count == maxCount)
+            {
+                yield return new WaitForSeconds(1f);
+                StartCoroutine(nameof(GenerateCircle));
+                yield break;
+            }
+
+            yield return new WaitForSeconds(0.2f);
+        }
     }
 
     IEnumerator DestroyCircle()
     {
-        if (activeCirclePool.Count == 0)
+        while (true)
         {
-            yield return new WaitForSeconds(0.2f);
-            StartCoroutine(nameof(GenerateCircle));
-            yield break;
+            if (activeCirclePool.Count == 0)
+            {
+                yield return new WaitForSeconds(0.2f);
+                StartCoroutine(nameof(GenerateCircle));
+                yield break;
+            }
+            else
+            {
+                tempCircle = activeCirclePool.Dequeue();
+                tempCircle.SetActive(false);
+                deactiveCirclePool.Enqueue(tempCircle);
+
+                yield return new WaitForSeconds(0.2f);
+            }
         }
-        tempCircle = activeCirclePool.Dequeue();
-        tempCircle.SetActive(false);
-        deactiveCirclePool.Enqueue(tempCircle);
-
-        yield return new WaitForSeconds(0.2f);
-        StartCoroutine(nameof(DestroyCircle));
-
-        yield break;
     }
 
     IEnumerator GenerateCircle()
     {
-        if (deactiveCirclePool.Count == 0)
+        while (true)
         {
-            yield return new WaitForSeconds(1.4f);
-            StartCoroutine(nameof(DestroyCircle));
-            yield break;
+            if (deactiveCirclePool.Count == 0)
+            {
+                yield return new WaitForSeconds(1.4f);
+                StartCoroutine(nameof(DestroyCircle));
+                yield break;
+            }
+            else
+            {
+                tempCircle = deactiveCirclePool.Dequeue();
+                tempCircle.SetActive(true);
+                activeCirclePool.Enqueue(tempCircle);
+
+                yield return new WaitForSeconds(0.2f);
+            }
         }
-
-        tempCircle = deactiveCirclePool.Dequeue();
-        tempCircle.SetActive(true);
-        activeCirclePool.Enqueue(tempCircle);
-
-        yield return new WaitForSeconds(0.2f);
-        StartCoroutine(nameof(GenerateCircle));
-
-        yield break;
     }
-
 }

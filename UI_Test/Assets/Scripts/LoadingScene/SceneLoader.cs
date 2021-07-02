@@ -20,16 +20,17 @@ public class SceneLoader : MonoBehaviour
 
     IEnumerator ChangeText()
     {
-        textcontent = "Loading ";
-        count = (count + 1) % 4;
+        while (true)
+        {
+            textcontent = "Loading ";
+            count = (count + 1) % 4;
 
-        for(int i = 1; i <= count; i++)        
-            textcontent += ". ";
+            for (int i = 1; i <= count; i++)
+                textcontent += ". ";
 
-        loadingText.text = textcontent;
+            loadingText.text = textcontent;
 
-        yield return new WaitForSeconds(0.3f);
-        StartCoroutine(nameof(ChangeText));
-        yield break;
+            yield return new WaitForSeconds(0.3f);
+        }
     }
 }
